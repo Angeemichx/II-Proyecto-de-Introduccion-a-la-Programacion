@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import pygame
 pygame.init()
 
@@ -15,3 +16,6 @@ while jugando:
     pygame.display.update
 
 pygame.quit()
+=======
+#prueba commit
+>>>>>>> ef70592dac42094a8109c3614c9e55de0bbc328c
