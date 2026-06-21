@@ -43,15 +43,3 @@ while corriendo:
     pygame.display.update()
 
 pygame.quit()
-
-"""import pygame
-import os
-
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-pygame.init()
-
-chef = pygame.image.load("chef1_a.png")
-print("Ancho:", chef.get_width())
-print("Alto:", chef.get_height())
-
-pygame.quit()"""

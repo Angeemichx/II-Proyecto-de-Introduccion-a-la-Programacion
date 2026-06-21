@@ -234,14 +234,8 @@ while jugando:
                     hitbox_cercano = pygame.Rect(chef1_pos_x + 40, chef1_pos_y, 120, 250)
                     ingrediente_actual = chef1_ingrediente
                 else:
-                    hitbox_cercano = pygame.Rect(chef1_pos_x + 40, chef1_pos_y, 120, 250)
+                    hitbox_cercano = pygame.Rect(chef2_pos_x + 40, chef2_pos_y, 120, 250)
                     ingrediente_actual = chef2_ingrediente
-
-                # Expandir hitbox para detectar estaciones cercanas
-                hitbox_cercano = pygame.Rect( chef1_pos_x + 40,   #un poco adentro horizontalmente
-                    chef1_pos_y,        #arriba
-                    120,                #ancho
-                    250)                 #alto, cubre todo el personaje
 
                 for i, est in enumerate(ests_activas):
                     num_est = i + 1
@@ -258,6 +252,7 @@ while jugando:
                         print(f"Chef {chef_activo} recogió: {nuevo_ing.nombre}")
                         break
 
+                    #procesador
                     if num_est in procesadores_est and ingrediente_actual is not None:
                         accion = procesadores_est[num_est]
                         if accion == "cortar":
@@ -266,9 +261,16 @@ while jugando:
                                 print(f"{ingrediente_actual.nombre} cortado")
                         elif accion == "cocinar":
                             if isinstance(ingrediente_actual, Proteina) and not ingrediente_actual.cocinada:
-                                ingrediente_actual.cocinada = True
-                                ingrediente_actual.estado = "preparado"
-                                print(f"{ingrediente_actual.nombre} cocinado")
+                                #Tiempo mínimo de cocción
+                                if not hasattr(ingrediente_actual, 'tiempo_en_cocina'):
+                                    ingrediente_actual.tiempo_en_cocina = 0
+                                ingrediente_actual.tiempo_en_cocina += delta
+                                if ingrediente_actual.tiempo_en_cocina >= 3:  # 3 segundos mínimo
+                                    ingrediente_actual.cocinada = True
+                                    ingrediente_actual.estado = "preparado"
+                                    print(f"{ingrediente_actual.nombre} cocinado")
+                                else:
+                                    print(f"Cocinando... {ingrediente_actual.tiempo_en_cocina:.1f}s / 3s")
                         elif accion == "freir":
                             if isinstance(ingrediente_actual, Papas) and not ingrediente_actual.frito:
                                 ingrediente_actual.frito = True
@@ -281,14 +283,18 @@ while jugando:
                         if ingrediente_actual is not None:
                             mesa_a.append(ingrediente_actual)
                             if chef_activo == 1: chef1_ingrediente = None
-                            else: chef2_ingrediente = None
+                            else: 
+                                chef2_ingrediente = None
+                            print(f"Mesa A: {[i.nombre for i in mesa_a]}")
                         break
 
                     if num_est == 10:
                         if ingrediente_actual is not None:
                             mesa_b.append(ingrediente_actual)
                             if chef_activo == 1: chef1_ingrediente = None
-                            else: chef2_ingrediente = None
+                            else: 
+                                chef2_ingrediente = None
+                            print(f"Mesa B: {[i.nombre for i in mesa_b]}")    
                         break
 
                         # Entrega estación 1
@@ -307,7 +313,17 @@ while jugando:
                             else:
                                 print("Receta incorrecta")
                         break
-                
+
+            #configuración tecla p como basurero
+            if event.key == pygame.K_p:
+                if chef_activo == 1 and chef1_ingrediente is not None:
+                    print(f"Tirado: {chef1_ingrediente.nombre}")
+                    chef1_ingrediente = None
+                elif chef_activo == 2 and chef2_ingrediente is not None:
+                    print(f"Tirado: {chef2_ingrediente.nombre}")
+                    chef2_ingrediente = None
+
+
             #Controles cuando se presiona una tecla
             if chef_activo == 1:
                 if event.key == pygame.K_d:
@@ -384,19 +400,23 @@ while jugando:
 
 
 
-    #COALISIONES---------------------------------
-    if estado == "mapa_1":
-        ests_colision = estaciones
-    elif estado == "mapa_2":
-        ests_colision = estaciones_mapa2
-    elif estado == "mapa_3":
-        ests_colision = estaciones_mapa3
+    #COLISIONES---------------------------------
+
+    if estado in ("mapa_1", "mapa_2", "mapa_3"):
+        if estado == "mapa_1":
+            ests_colision = estaciones
+        elif estado == "mapa_2":
+            ests_colision = estaciones_mapa2
+        elif estado == "mapa_3":
+            ests_colision = estaciones_mapa3
     else:
         ests_colision = []
 
     # Mover chef1 con colisión
     nuevo_x1 = chef1_pos_x + chef1_velocidad_x
     nuevo_y1 = chef1_pos_y + chef1_velocidad_y
+    nuevo_x1 = max(0, min(nuevo_x1, ANCHO - CHEF_ANCHO))
+    nuevo_y1 = max(0, min(nuevo_y1, ALTO - CHEF_ALTO))
     rect_chef1 = pygame.Rect(nuevo_x1 + 60, nuevo_y1 + 80, 80, 100)
     if not any(rect_chef1.colliderect(e) for e in ests_colision):
         chef1_pos_x, chef1_pos_y = nuevo_x1, nuevo_y1
@@ -404,6 +424,8 @@ while jugando:
     #Mover chef2 con colisión
     nuevo_x2 = chef2_pos_x + chef2_velocidad_x
     nuevo_y2 = chef2_pos_y + chef2_velocidad_y
+    nuevo_x2 = max(0, min(nuevo_x2, ANCHO - CHEF_ANCHO))
+    nuevo_y2 = max(0, min(nuevo_y2, ALTO - CHEF_ALTO))
     rect_chef2 = pygame.Rect(nuevo_x2 + 60, nuevo_y2 + 80, 80, 100)
     if not any(rect_chef2.colliderect(e) for e in ests_colision):
         chef2_pos_x, chef2_pos_y = nuevo_x2, nuevo_y2
@@ -417,14 +439,17 @@ while jugando:
         texto = fuente.render("Presiona ENTER para jugar", True, BLANCO)
         ventana.blit(texto, (ANCHO//2 - texto.get_width()//2, ALTO//2))
 
-    elif estado == "mapa_1":
-        ventana.blit(mapa_1, (0, 0))
+    elif estado in ("mapa_1", "mapa_2", "mapa_3"):
+        #Fondo
+        if estado == "mapa_1": ventana.blit(mapa_1, (0, 0))
+        elif estado == "mapa_2": ventana.blit(mapa_2, (0, 0))
+        else: ventana.blit(mapa_3, (0, 0))
 
         #Dibujar chef según dirección actual
         ventana.blit(chef1_imgs[chef1_direccion], (chef1_pos_x, chef1_pos_y))
         ventana.blit(chef2_imgs[chef2_direccion], (chef2_pos_x, chef2_pos_y))
         
-        # Mostrar ingrediente como sobre los chef
+        # Mostrar ingredientes sobre los chef
 
         # ingrediente sobre chef1
         if chef1_ingrediente:
@@ -438,31 +463,36 @@ while jugando:
             ventana.blit(fuente_pequeña.render(txt, True, AMARILLO),
                          (chef2_pos_x + 50, chef2_pos_y + 40))
 
-        #tiempo y puntos
-        tiempo_txt = fuente_grande.render(
-            f"Tiempo: {int(cocina.tiempo_restante)}s", True, BLANCO)
-        puntos_txt = fuente_grande.render(
-            f"Puntos: {chef1_obj.puntos + chef2_obj.puntos}", True, BLANCO)
-        ventana.blit(tiempo_txt, (20, 20))
-        ventana.blit(puntos_txt, (ANCHO - 250, 20))
-
-        #órdenes activas
+        #Gestión de puntos, tiempo y órdenes 
+        ventana.blit(fuente_grande.render(f"Tiempo: {int(cocina.tiempo_restante)}s", True, BLANCO), (20, 20))
+        ventana.blit(fuente_grande.render(f"Puntos: {chef1_obj.puntos + chef2_obj.puntos}", True, BLANCO), (ANCHO - 250, 20))
         ventana.blit(fuente_pequeña.render("ÓRDENES:", True, BLANCO), (ANCHO//2 - 60, 10))
         for idx, orden in enumerate(cocina.ordenes):
             color = ROJO if orden.puntos_actuales < orden.PuntosReceta else BLANCO
-            txt = f"{orden.nombre} | {orden.puntos_actuales}pts | {int(orden.MaxTimeReceta - orden.tiempo_transcurrido)}s"
-            ventana.blit(fuente_pequeña.render(txt, True, color),
-                         (ANCHO//2 - 150, 35 + idx * 25))
+            txt = f"{orden.nombre} / {orden.puntos_actuales}pts / {int(orden.MaxTimeReceta - orden.tiempo_transcurrido)}s"
+            ventana.blit(fuente_pequeña.render(txt, True, color), (ANCHO//2 - 150, 35 + idx * 25))
 
-    elif estado == "mapa_2":
-        ventana.blit(mapa_2, (0, 0))
-        ventana.blit(chef1_imgs[chef1_direccion], (chef1_pos_x, chef1_pos_y))
-        ventana.blit(chef2_imgs[chef2_direccion], (chef2_pos_x, chef2_pos_y))
+        #Indicar control para basura 
+        ventana.blit(fuente_pequeña.render("P = tirar ingrediente", True, ROJO), (20, ALTO - 40))
 
-    elif estado == "mapa_3":
-        ventana.blit(mapa_3, (0, 0))
-        ventana.blit(chef1_imgs[chef1_direccion], (chef1_pos_x, chef1_pos_y))
-        ventana.blit(chef2_imgs[chef2_direccion], (chef2_pos_x, chef2_pos_y))
+        # Mesa A y B, mostrar los alimentos que se colocan 
+        if mesa_a:
+            txt = "Mesa A: " + ", ".join(i.nombre for i in mesa_a)
+            ventana.blit(fuente_pequeña.render(txt, True, AMARILLO), (320, ALTO - 40))
+        if mesa_b:
+            txt = "Mesa B: " + ", ".join(i.nombre for i in mesa_b)
+            ventana.blit(fuente_pequeña.render(txt, True, AMARILLO), (320, ALTO - 65))
+
+    #Finalizar el juego
+    elif estado == "fin_juego":
+        ventana.fill(NEGRO)
+        puntos_totales = chef1_obj.puntos + chef2_obj.puntos
+        ventana.blit(fuente_grande.render("¡Juego terminado!", True, BLANCO),
+                     (ANCHO//2 - 150, ALTO//2 - 80))
+        ventana.blit(fuente_grande.render(f"Puntos totales: {puntos_totales}", True, AMARILLO),
+                     (ANCHO//2 - 150, ALTO//2))
+        ventana.blit(fuente_grande.render("ESC para salir", True, BLANCO),
+                     (ANCHO//2 - 120, ALTO//2 + 80))
 
     #Actualizar (se produce lo guardado en memoria)
     pygame.display.update()
