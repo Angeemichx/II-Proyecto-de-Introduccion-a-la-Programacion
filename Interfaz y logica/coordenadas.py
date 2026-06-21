@@ -7,7 +7,7 @@ pygame.init()
 ANCHO = 1280
 ALTO = 720
 ventana = pygame.display.set_mode((ANCHO, ALTO))
-mapa = pygame.image.load("mapa_1.png").convert()
+mapa = pygame.image.load("mapa_2.png").convert()
 
 corriendo = True
 while corriendo:
