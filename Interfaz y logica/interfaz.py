@@ -44,6 +44,55 @@ chef2_imgs = {
 "izquierda": pygame.image.load("chef2_c.png").convert_alpha(),
 "derecha": pygame.image.load("chef2_d.png").convert_alpha()}
 
+# Imágenes con platillo por nivel
+chef1_ensalada_imgs = {
+    "abajo":     pygame.image.load("chef1_ensalada_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef1_ensalada_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef1_ensalada_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef1_ensalada_b.png").convert_alpha()}
+
+chef2_ensalada_imgs = {
+    "abajo":     pygame.image.load("chef2_ensalada_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef2_ensalada_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef2_ensalada_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef2_ensalada_b.png").convert_alpha()}
+
+chef1_hd_imgs = {
+    "abajo":     pygame.image.load("chef1_hd_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef1_hd_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef1_hd_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef1_hd_b.png").convert_alpha()}
+
+chef2_hd_imgs = {
+    "abajo":     pygame.image.load("chef2_hd_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef2_hd_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef2_hd_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef2_hd_b.png").convert_alpha()}
+
+chef1_empanada_imgs = {
+    "abajo":     pygame.image.load("chef1_empanada_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef1_empanada_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef1_empanada_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef1_empanada_b.png").convert_alpha()}
+
+chef2_empanada_imgs = {
+    "abajo":     pygame.image.load("chef2_empanada_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef2_empanada_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef2_empanada_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef2_empanada_b.png").convert_alpha()}
+
+chef1_salch_imgs = {
+    "abajo":     pygame.image.load("chef1_salch_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef1_salch_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef1_salch_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef1_salch_b.png").convert_alpha()}
+
+chef2_salch_imgs = {
+    "abajo":     pygame.image.load("chef2_salch_a.png").convert_alpha(),
+    "arriba":    pygame.image.load("chef2_salch_a.png").convert_alpha(),
+    "izquierda": pygame.image.load("chef2_salch_c.png").convert_alpha(),
+    "derecha":   pygame.image.load("chef2_salch_b.png").convert_alpha()}
+
 #Objetos creados en la lógica
 chef1_obj = ChefControlado("Chef 1", chef1_imgs, 425, 210)
 chef2_obj = ChefControlado("Chef 2", chef2_imgs, 735, 210)
@@ -56,6 +105,10 @@ cocina.GenerarReceta() #Para generar la primer receta
 #estado o mapa del juego
 estado = "menu"
 chef_activo = 1
+
+
+chef1_imgs_platillo = None
+chef2_imgs_platillo = None
 
 # diccionario para dispensadores según la estación al presionar letra E, se utiliza lambda para escribir las funciones en una sola línea y que el objeto no se guarde inmediatamente en memoria, sino hasta que se llame a la función
 #Para el mapa 1 - ensaladas
@@ -92,8 +145,48 @@ procesadores_est ={
     9: "cocinar"}
 
 #Mesa de ensamblaje en las estaciones 6 y 10 para guardar recetas armadas
-mesa_a = [] #Es la estación 6
-mesa_b = [] #Es la estación 10
+# Mesas con platos para ensamblar
+                    if num_est == 6:
+                        if chef_actual.ingrediente is not None:
+                            mesa_a.append(chef_actual.soltar())
+                            print(f"Mesa A: {[i.nombre for i in mesa_a]}")
+                            # Verificar receta completa
+                            todos_temp = mesa_a + mesa_b
+                            for orden in cocina.ordenes:
+                                if orden.CompararReceta(todos_temp):
+                                    if orden.nombre == "Salchipapas":
+                                        p1, p2 = chef1_salch_imgs, chef2_salch_imgs
+                                    elif estado == "mapa_1":
+                                        p1, p2 = chef1_ensalada_imgs, chef2_ensalada_imgs
+                                    elif estado == "mapa_2":
+                                        p1, p2 = chef1_hd_imgs, chef2_hd_imgs
+                                    else:
+                                        p1, p2 = chef1_empanada_imgs, chef2_empanada_imgs
+                                    chef1_obj.imagenes = p1
+                                    chef2_obj.imagenes = p2
+                                    break
+                        break
+
+                    if num_est == 10:
+                        if chef_actual.ingrediente is not None:
+                            mesa_b.append(chef_actual.soltar())
+                            print(f"Mesa B: {[i.nombre for i in mesa_b]}")
+                            # Verificar receta completa
+                            todos_temp = mesa_a + mesa_b
+                            for orden in cocina.ordenes:
+                                if orden.CompararReceta(todos_temp):
+                                    if orden.nombre == "Salchipapas":
+                                        p1, p2 = chef1_salch_imgs, chef2_salch_imgs
+                                    elif estado == "mapa_1":
+                                        p1, p2 = chef1_ensalada_imgs, chef2_ensalada_imgs
+                                    elif estado == "mapa_2":
+                                        p1, p2 = chef1_hd_imgs, chef2_hd_imgs
+                                    else:
+                                        p1, p2 = chef1_empanada_imgs, chef2_empanada_imgs
+                                    chef1_obj.imagenes = p1
+                                    chef2_obj.imagenes = p2
+                                    break
+                        break
 
 
 # Rectángulos de colisión de las estaciones en todos los mapas
@@ -271,6 +364,7 @@ while jugando:
                         break
                     
                     # Entregar
+                    # Entregar
                     if num_est == 1:
                         todos = mesa_a + mesa_b
                         if chef_actual.ingrediente is not None:
@@ -281,6 +375,9 @@ while jugando:
                                 print(f"Receta entregada: {resultado}")
                                 mesa_a.clear()
                                 mesa_b.clear()
+                                # Volver a imágenes normales
+                                chef1_obj.imagenes = chef1_imgs
+                                chef2_obj.imagenes = chef2_imgs
                             else:
                                 print("Receta incorrecta")
                         break
