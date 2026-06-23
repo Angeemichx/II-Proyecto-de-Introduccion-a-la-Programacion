@@ -110,6 +110,9 @@ chef_activo = 1
 chef1_imgs_platillo = None
 chef2_imgs_platillo = None
 
+mesa_a = []
+mesa_b=[]
+
 # diccionario para dispensadores según la estación al presionar letra E, se utiliza lambda para escribir las funciones en una sola línea y que el objeto no se guarde inmediatamente en memoria, sino hasta que se llame a la función
 #Para el mapa 1 - ensaladas
 dispensadores_mapa1 = { 
@@ -143,51 +146,6 @@ procesadores_est ={
     7: "cocinar",
     8: "cocinar",
     9: "cocinar"}
-
-#Mesa de ensamblaje en las estaciones 6 y 10 para guardar recetas armadas
-# Mesas con platos para ensamblar
-                    if num_est == 6:
-                        if chef_actual.ingrediente is not None:
-                            mesa_a.append(chef_actual.soltar())
-                            print(f"Mesa A: {[i.nombre for i in mesa_a]}")
-                            # Verificar receta completa
-                            todos_temp = mesa_a + mesa_b
-                            for orden in cocina.ordenes:
-                                if orden.CompararReceta(todos_temp):
-                                    if orden.nombre == "Salchipapas":
-                                        p1, p2 = chef1_salch_imgs, chef2_salch_imgs
-                                    elif estado == "mapa_1":
-                                        p1, p2 = chef1_ensalada_imgs, chef2_ensalada_imgs
-                                    elif estado == "mapa_2":
-                                        p1, p2 = chef1_hd_imgs, chef2_hd_imgs
-                                    else:
-                                        p1, p2 = chef1_empanada_imgs, chef2_empanada_imgs
-                                    chef1_obj.imagenes = p1
-                                    chef2_obj.imagenes = p2
-                                    break
-                        break
-
-                    if num_est == 10:
-                        if chef_actual.ingrediente is not None:
-                            mesa_b.append(chef_actual.soltar())
-                            print(f"Mesa B: {[i.nombre for i in mesa_b]}")
-                            # Verificar receta completa
-                            todos_temp = mesa_a + mesa_b
-                            for orden in cocina.ordenes:
-                                if orden.CompararReceta(todos_temp):
-                                    if orden.nombre == "Salchipapas":
-                                        p1, p2 = chef1_salch_imgs, chef2_salch_imgs
-                                    elif estado == "mapa_1":
-                                        p1, p2 = chef1_ensalada_imgs, chef2_ensalada_imgs
-                                    elif estado == "mapa_2":
-                                        p1, p2 = chef1_hd_imgs, chef2_hd_imgs
-                                    else:
-                                        p1, p2 = chef1_empanada_imgs, chef2_empanada_imgs
-                                    chef1_obj.imagenes = p1
-                                    chef2_obj.imagenes = p2
-                                    break
-                        break
-
 
 # Rectángulos de colisión de las estaciones en todos los mapas
 estaciones = [
@@ -249,6 +207,8 @@ fuente_pequeña = pygame.font.SysFont("Arial", 22)
 #Función para realizar cambios de mapa y reiniciar la cocina
 def iniciar_nivel(nivel):
     global cocina
+    global mesa_a
+    global mesa_b
     
     # Reiniciar posiciones de chefs
     chef1_obj.pos_x, chef1_obj.pos_y = 425, 210
