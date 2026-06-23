@@ -242,18 +242,13 @@ while jugando:
                                 
                         elif accion == "cocinar" and isinstance(ing, Proteina):
                             if ing.estado != "preparado" and ing.estado != "quemado":
-                                #Simular tiempo de cocinar
-                                if not hasattr(ing, 'tiempo_coccion'):
-                                    ing.tiempo_coccion = 0
-                                ing.tiempo_coccion += 0.5
-                                progreso = min(1, ing.tiempo_coccion / 3)
+                                ing.actualizar_coccion(delta)
+                                progreso = min(1, ing.tiempo_coccion / ing.tiempo_minimo)
                                 print(f"Cocinando {ing.nombre}: {int(progreso*100)}%")
-                                
-                                if ing.tiempo_coccion >= 3:
-                                    ing.cocinada = True
-                                    ing.estado = "preparado"
+                                if ing.estado == "preparado":
                                     print(f"{ing.nombre} cocinado")
-                                    delattr(ing, 'tiempo_coccion')
+                                elif ing.estado == "quemado":
+                                    print(f"{ing.nombre} se quemó")
                                     
                         elif accion == "freir" and isinstance(ing, Papas):
                             if ing.estado != "preparado":
