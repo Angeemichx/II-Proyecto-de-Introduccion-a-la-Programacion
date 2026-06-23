@@ -18,13 +18,13 @@ ventana = pygame.display.set_mode((ANCHO, ALTO), pygame.FULLSCREEN)
 pygame.display.set_caption("Crazy Snack Rush")
 reloj = pygame.time.Clock()
 
-# ── Fondos / mapas ──
+# Fondos
 menu_img = pygame.image.load("menu.png").convert()
 mapa_1   = pygame.image.load("mapa_1.png").convert()
 mapa_2   = pygame.image.load("mapa_2.png").convert()
 mapa_3   = pygame.image.load("mapa_3.png").convert()
 
-# ── Sprites base de los chefs (sin plato) ──
+# Base de los chefs
 chef1_imgs = {
     "abajo":     pygame.image.load("chef1_a.png").convert_alpha(),
     "arriba":    pygame.image.load("chef1_b.png").convert_alpha(),
@@ -37,7 +37,7 @@ chef2_imgs = {
     "izquierda": pygame.image.load("chef2_c.png").convert_alpha(),
     "derecha":   pygame.image.load("chef2_d.png").convert_alpha()}
 
-# ── Sprites con plato: ensalada (nivel 1) ──
+# Con plato ensalada nivel 1
 chef1_ensalada_imgs = {
     "abajo":     pygame.image.load("chef1_ensalada_a.png").convert_alpha(),
     "arriba":    pygame.image.load("chef1_ensalada_a.png").convert_alpha(),
@@ -50,7 +50,7 @@ chef2_ensalada_imgs = {
     "izquierda": pygame.image.load("chef2_ensalada_c.png").convert_alpha(),
     "derecha":   pygame.image.load("chef2_ensalada_b.png").convert_alpha()}
 
-# ── Sprites con plato: hot dog (nivel 2) ──
+# Con plato hot dog nivel 2
 chef1_hd_imgs = {
     "abajo":     pygame.image.load("chef1_hd_a.png").convert_alpha(),
     "arriba":    pygame.image.load("chef1_hd_a.png").convert_alpha(),
@@ -63,7 +63,7 @@ chef2_hd_imgs = {
     "izquierda": pygame.image.load("chef2_hd_c.png").convert_alpha(),
     "derecha":   pygame.image.load("chef2_hd_b.png").convert_alpha()}
 
-# ── Sprites con plato: empanada (nivel 3) ──
+# Con plato empanada nivel 3
 chef1_empanada_imgs = {
     "abajo":     pygame.image.load("chef1_empanada_a.png").convert_alpha(),
     "arriba":    pygame.image.load("chef1_empanada_a.png").convert_alpha(),
@@ -76,7 +76,7 @@ chef2_empanada_imgs = {
     "izquierda": pygame.image.load("chef2_empanada_c.png").convert_alpha(),
     "derecha":   pygame.image.load("chef2_empanada_b.png").convert_alpha()}
 
-# ── Sprites con plato: salchicha (sin plato activo en la mano, de respaldo) ──
+# Con plato salchicha sin plato activo en la mano
 chef1_salch_imgs = {
     "abajo":     pygame.image.load("chef1_salch_a.png").convert_alpha(),
     "arriba":    pygame.image.load("chef1_salch_a.png").convert_alpha(),
@@ -89,19 +89,8 @@ chef2_salch_imgs = {
     "izquierda": pygame.image.load("chef2_salch_c.png").convert_alpha(),
     "derecha":   pygame.image.load("chef2_salch_b.png").convert_alpha()}
 
-# ─────────────────────────────────────────────────────────────────────────────
-# IMÁGENES DE "PLATO SOSTENIDO" POR NIVEL
-# FIX: antes se usaba siempre chef1_ensalada_imgs sin importar el nivel.
-# Ahora se elige la imagen correcta según el nivel activo.
-# ─────────────────────────────────────────────────────────────────────────────
+#Cambiar imagenes del plato segun el nivel
 def get_imgs_plato(chef_num, nivel):
-    """
-    Devuelve el dict de imágenes que debe mostrar el chef cuando
-    lleva un plato armado, según el nivel en curso.
-      Nivel 1 → ensalada
-      Nivel 2 → hot dog
-      Nivel 3 → empanada
-    """
     if nivel == 1:
         return chef1_ensalada_imgs if chef_num == 1 else chef2_ensalada_imgs
     elif nivel == 2:
@@ -110,10 +99,10 @@ def get_imgs_plato(chef_num, nivel):
         return chef1_empanada_imgs if chef_num == 1 else chef2_empanada_imgs
 
 def get_imgs_base(chef_num):
-    """Devuelve el dict de imágenes base del chef (sin plato)."""
+    #imágenes sin plato
     return chef1_imgs if chef_num == 1 else chef2_imgs
 
-# ── Música ──
+# Música
 try:
     pygame.mixer.music.load("musica.ogg")
     pygame.mixer.music.set_volume(0.5)
@@ -121,27 +110,20 @@ try:
 except Exception as e:
     print(f"No se pudo cargar música: {e}")
 
-# ── Chefs ──
+# Chefs
 chef1_obj = ChefControlado("Chef 1", chef1_imgs, 425, 210)
 chef2_obj = ChefControlado("Chef 2", chef2_imgs, 735, 210)
 chef1_obj.activo = True
 
-# ── Estado global ──
+# Estado global
 estado       = "menu"
 chef_activo  = 1
-nivel_actual = 1   # FIX: variable global para saber qué nivel corre ahora
+nivel_actual = 1   
 mesa_a = []
 mesa_b = []
+ingredientes_en_coccion = {}  
 
-# ─────────────────────────────────────────────────────────────────────────────
-# FIX 3 – MÚLTIPLES INGREDIENTES EN COCCIÓN SIMULTÁNEA
-# Antes: ingrediente_en_coccion era una sola variable → al poner un segundo
-# ingrediente a cocinar se sobreescribía la referencia y el primero se perdía.
-# Ahora: diccionario  estacion_idx → ingrediente,  admite N estaciones a la vez.
-# ─────────────────────────────────────────────────────────────────────────────
-ingredientes_en_coccion = {}   # { num_estacion: ingrediente }
-
-# ── Dispensadores por mapa ──
+# Dispensadores por mapa
 dispensadores_mapa1 = {
     11: lambda: VegetalesYFrutas("Banano"),
     12: lambda: VegetalesYFrutas("Fresa"),
@@ -162,13 +144,13 @@ dispensadores_mapa3 = {
     14: lambda: Proteina("Salchicha"),
     15: lambda: PanesYBases("Empanada")}
 
-# ── Procesadores: num_estacion → acción ──
+# Procesadores
 procesadores_est = {
     2: "freir",  3: "freir",
     4: "cortar", 5: "cortar",
     7: "cocinar", 8: "cocinar", 9: "cocinar"}
 
-# ── Rects de colisión física (el chef no puede pasar encima) ──
+# Rects de colisión física el chef no puede pasar encima
 estaciones = [
     pygame.Rect(1025, 228, 162, 182),   # 1  Entrega
     pygame.Rect(757,  397, 100, 109),   # 2  Freidora
@@ -222,11 +204,7 @@ estaciones_mapa3 = [
 OFFSET_DISP = -60
 
 def get_disp_interaccion(ests):
-    """
-    Devuelve lista de (num_estacion, rect_interaccion).
-    Los dispensadores (num >= 11) bajan su rect de interacción con OFFSET_DISP
-    para que coincidan con la posición real del chef parado frente a la pared.
-    """
+    #Bajar los dispensadores un poco para que coincidan
     resultado = []
     for i, r in enumerate(ests):
         num = i + 1
@@ -239,23 +217,20 @@ def get_disp_interaccion(ests):
 fuente_grande  = pygame.font.SysFont("Arial", 36)
 fuente_pequeña = pygame.font.SysFont("Arial", 22)
 
-# ── Retroalimentación visual en pantalla (mensajes flotantes temporales) ──
+# Retroalimentación visual en pantalla, mensajes flotantes temporales
 mensaje_ui      = ""      # Texto a mostrar
 mensaje_timer   = 0.0    # Cuánto tiempo queda de mostrar el mensaje
 COLOR_MENSAJE   = VERDE
 
 def mostrar_mensaje(texto, color=VERDE, duracion=2.0):
-    """Registra un mensaje que se mostrará en pantalla durante 'duracion' segundos."""
+    #Registra un mensaje que se mostrará en pantalla
     global mensaje_ui, mensaje_timer, COLOR_MENSAJE
     mensaje_ui    = texto
     mensaje_timer = duracion
     COLOR_MENSAJE = color
 
 def limpiar_mesas_y_sprites():
-    """
-    Después de una entrega (exitosa o no) limpia las mesas
-    y restaura los sprites base de ambos chefs según el nivel actual.
-    """
+    #limpiar las mesas
     mesa_a.clear()
     mesa_b.clear()
     chef1_obj.plato_sostenido = None
@@ -265,11 +240,7 @@ def limpiar_mesas_y_sprites():
 
 
 def iniciar_nivel(nivel):
-    """
-    Prepara el juego para el nivel indicado:
-    resetea posición, manos, mesas, cocción y crea una nueva Cocina.
-    Los puntos NO se resetean aquí (se acumulan entre niveles).
-    """
+
     global cocina, mesa_a, mesa_b, ingredientes_en_coccion, nivel_actual
 
     nivel_actual = nivel
@@ -288,7 +259,7 @@ def iniciar_nivel(nivel):
 
     mesa_a.clear()
     mesa_b.clear()
-    ingredientes_en_coccion.clear()   # FIX: limpiar todos los ingredientes en cocción
+    ingredientes_en_coccion.clear()  
 
     if nivel == 1:
         cocina = Cocina(120, [chef1_obj, chef2_obj], recetas_nivel1)
@@ -302,26 +273,23 @@ def iniciar_nivel(nivel):
 
 iniciar_nivel(1)
 
-# ─────────────────────────────────────────────
 # BUCLE PRINCIPAL
-# ─────────────────────────────────────────────
 jugando = True
 while jugando:
-    delta = reloj.tick(60) / 1000   # Segundos transcurridos en este frame
+    delta = reloj.tick(60) / 1000   # FPS
 
-    # ── Actualizar todos los ingredientes que están cocinando/friéndose ──
-    # FIX: antes era una sola variable, ahora es un diccionario.
+    # Actualizar todos los ingredientes que están cocinando/friéndose
     for idx_est, ing_coccion in list(ingredientes_en_coccion.items()):
         if isinstance(ing_coccion, Proteina):
             ing_coccion.cocinar(delta)
         elif isinstance(ing_coccion, Papas):
             ing_coccion.freir(delta)
 
-    # ── Timer del mensaje UI ──
+    #Timer del mensaje UI
     if mensaje_timer > 0:
         mensaje_timer -= delta
 
-    # ── Eventos ──
+    #Eventos
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             jugando = False
@@ -335,7 +303,7 @@ while jugando:
             if event.key in (pygame.K_LSHIFT, pygame.K_RSHIFT):
                 chef_activo = 2 if chef_activo == 1 else 1
 
-            # ENTER: navegar entre pantallas
+            # Enter para navegar entre pantallas
             if event.key == pygame.K_RETURN and estado == "menu":
                 estado = "mapa_1"
 
@@ -345,7 +313,7 @@ while jugando:
                 chef1_obj.puntos = 0
                 chef2_obj.puntos = 0
 
-            # ── SPACE: interactuar con estación ──
+            # espacio para interactuar con estación
             if event.key == pygame.K_SPACE and estado in ("mapa_1", "mapa_2", "mapa_3"):
                 ests_activas  = (estaciones      if estado == "mapa_1"
                                  else (estaciones_mapa2 if estado == "mapa_2"
@@ -362,7 +330,7 @@ while jugando:
                     if not hitbox.colliderect(est):
                         continue
 
-                    # ── Dispensador ──
+                    # Dispensador
                     if num_est in disps_activos and chef_actual.ingrediente is None:
                         # Si hay algo cocinando en esa misma estación (raro pero posible), recogerlo
                         if num_est in ingredientes_en_coccion:
@@ -373,7 +341,7 @@ while jugando:
                             print(f"Chef {chef_activo} recogió: {nuevo_ing.nombre}")
                         break
 
-                    # ── Estación de procesado (chef trae algo en la mano) ──
+                    # Estación de procesado
                     if num_est in procesadores_est and chef_actual.ingrediente is not None:
                         accion = procesadores_est[num_est]
                         ing    = chef_actual.ingrediente
@@ -387,7 +355,6 @@ while jugando:
 
                             elif accion == "cocinar":
                                 if isinstance(ing, Proteina):
-                                    # FIX: guardar en el dict con clave = num_estacion
                                     ingredientes_en_coccion[num_est] = chef_actual.soltar()
                                     print(f"{ing.nombre} puesto a cocinar en estación {num_est}")
                                 else:
@@ -403,7 +370,7 @@ while jugando:
                             print("Error procesando:", e)
                         break
 
-                    # ── Recoger ingrediente de estación de cocción (chef tiene manos libres) ──
+                    # Recoger ingrediente de estación de cocción chef debe tener manos libres
                     if num_est in procesadores_est and chef_actual.ingrediente is None:
                         if num_est in ingredientes_en_coccion:
                             ing_listo = ingredientes_en_coccion.pop(num_est)
@@ -411,60 +378,56 @@ while jugando:
                             print(f"Recogido: {ing_listo.nombre} [{ing_listo.estado}]")
                         break
 
-                    # ── Mesa A: depositar ingrediente ──
+                    # Mesa A, depositar ingrediente
                     if num_est == 6:
                         if chef_actual.ingrediente is not None:
                             mesa_a.append(chef_actual.soltar())
                             chef_actual.plato_sostenido = "Mesa A"
-                            # FIX: imagen de plato según el nivel actual
                             chef_actual.imagenes = get_imgs_plato(chef_activo, nivel_actual)
                             print(f"Mesa A: {[i.nombre for i in mesa_a]}")
                         break
 
-                    # ── Mesa B: depositar ingrediente ──
+                    # Mesa B, depositar ingrediente
                     if num_est == 10:
                         if chef_actual.ingrediente is not None:
                             mesa_b.append(chef_actual.soltar())
                             chef_actual.plato_sostenido = "Mesa B"
-                            # FIX: imagen de plato según el nivel actual
                             chef_actual.imagenes = get_imgs_plato(chef_activo, nivel_actual)
                             print(f"Mesa B: {[i.nombre for i in mesa_b]}")
                         break
 
-                    # ── Estación de entrega (num_est == 1) ──
+                    # Estación de entrega
                     if num_est == 1:
                         todos = mesa_a + mesa_b
                         if chef_actual.ingrediente is not None:
                             todos.append(chef_actual.soltar())
 
                         if not todos:
-                            mostrar_mensaje("⚠ No hay ingredientes para entregar", ROJO)
+                            mostrar_mensaje("No hay ingredientes para entregar", ROJO)
                             break
 
                         print("ENTREGANDO:", [(i.nombre, i.estado) for i in todos])
                         print("ÓRDENES:", [o.nombre for o in cocina.ordenes])
 
-                        # ── FIX PUNTOS ──
-                        # cocina.entregar() internamente llama chefs[0].sumar_puntos().
-                        # Para ver el efecto real, guardamos los puntos ANTES y DESPUÉS.
+                        # Guardamos los puntos antes y después.
                         puntos_antes = chef1_obj.puntos + chef2_obj.puntos
                         resultado = cocina.entregar(todos)
                         puntos_despues = chef1_obj.puntos + chef2_obj.puntos
                         diferencia = puntos_despues - puntos_antes
 
-                        limpiar_mesas_y_sprites()   # Siempre limpiar, exitoso o no
+                        limpiar_mesas_y_sprites()   # Siempre limpiar
 
                         if resultado:
                             signo = "+" if diferencia >= 0 else ""
                             mostrar_mensaje(
-                                f"✔ {resultado}  ({signo}{diferencia} pts)", VERDE)
+                                f"{resultado}  ({signo}{diferencia} pts)", VERDE)
                             print(f"Entregado: {resultado} | Puntos: {diferencia:+}")
                         else:
                             mostrar_mensaje("No coincide ninguna receta  (-10 pts)", ROJO)
                             print("Sin coincidencia, -10 pts")
                         break
 
-            # ── P: tirar ingrediente en mano o vaciar mesa asignada ──
+            # P para tirar ingrediente en mano o vaciar mesa asignada
             if event.key == pygame.K_p:
                 chef_actual = chef1_obj if chef_activo == 1 else chef2_obj
                 if chef_actual.ingrediente is not None:
@@ -479,7 +442,7 @@ while jugando:
                     chef_actual.imagenes = get_imgs_base(chef_activo)
                     print("Plato botado")
 
-    # ── Avanzar lógica del nivel ──
+    # Avanzar lógica del nivel
     if estado == "mapa_1":
         cocina.actualizar(delta)
         if cocina.juego_terminado():
@@ -495,7 +458,7 @@ while jugando:
         if cocina.juego_terminado():
             estado = "fin_juego"
 
-    # ── Colisiones y movimiento ──
+    # Colisiones y movimiento
     ests_colision = (estaciones      if estado == "mapa_1"
                      else (estaciones_mapa2 if estado == "mapa_2"
                            else estaciones_mapa3)) \
@@ -507,9 +470,8 @@ while jugando:
     else:
         chef2_obj.mover(teclas, (0, 0, ANCHO, ALTO), ests_colision)
 
-    # ─────────────────────────────────────────────
-    # DIBUJO
-    # ─────────────────────────────────────────────
+
+    # Dibujo
     if estado == "menu":
         ventana.blit(menu_img, (0, 0))
         fuente = pygame.font.SysFont("Arial", 48)
@@ -523,7 +485,7 @@ while jugando:
         chef1_obj.dibujar(ventana, resaltar=(chef_activo == 1))
         chef2_obj.dibujar(ventana, resaltar=(chef_activo == 2))
 
-        # ── Mostrar TODOS los ingredientes en cocción (FIX: antes solo uno) ──
+        # Mostrar todos los ingredientes en cocción
         y_coccion = ALTO - 65
         for idx_est, ing_coc in ingredientes_en_coccion.items():
             color_coc = ROJO if ing_coc.estado == "quemado" else AMARILLO
@@ -531,7 +493,7 @@ while jugando:
             ventana.blit(fuente_pequeña.render(txt_coc, True, color_coc), (20, y_coccion))
             y_coccion -= 22
 
-        # HUD: tiempo y puntos
+        # Tiempo y puntos
         ventana.blit(fuente_grande.render(
             f"Tiempo: {int(cocina.tiempo_restante)}s", True, BLANCO), (20, 20))
         ventana.blit(fuente_grande.render(
@@ -561,7 +523,7 @@ while jugando:
         ventana.blit(fuente_pequeña.render(
             "P = tirar plato/ingrediente", True, ROJO), (20, ALTO - 40))
 
-        # ── Mensaje UI flotante (feedback de entrega) ──
+        # Mensaje flotante retroalimentación de entrega
         if mensaje_timer > 0:
             surf = fuente_grande.render(mensaje_ui, True, COLOR_MENSAJE)
             ventana.blit(surf, (ANCHO // 2 - surf.get_width() // 2, ALTO // 2 - 40))
