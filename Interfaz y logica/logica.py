@@ -237,7 +237,7 @@ class Cocina:
         return None
 
     def juego_terminado(self):
-        """Retorna True cuando el tiempo del nivel se agotó."""
+        #Retorna True cuando el tiempo del nivel se agotó
         return self.tiempo_restante <= 0
 
 

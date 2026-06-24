@@ -273,7 +273,7 @@ def iniciar_nivel(nivel):
 
 iniciar_nivel(1)
 
-# BUCLE PRINCIPAL
+# Bucle principal
 jugando = True
 while jugando:
     delta = reloj.tick(60) / 1000   # FPS
